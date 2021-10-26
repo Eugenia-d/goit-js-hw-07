@@ -14,6 +14,7 @@ function createCardsMarkup(item) {
     .map(({ preview, original, description }) => {
       return `
     <div class="gallery__item">
+    <li>
         <a class="gallery__link" href="${original}">
             <img
             class="gallery__image"
@@ -22,28 +23,37 @@ function createCardsMarkup(item) {
             alt="${description}"
             />
         </a>
+        </li>
     </div>    
     `;
     })
     .join("");
 }
 
-// galleryDivEl.append(...elements);
+galleryDivEl.addEventListener("click", onSelectImage);
 
-// 1 добавить (используя map) картинки из galleryItems в галерею galleryDivEl
+function onSelectImage(evt) {
+  evt.preventDefault();
+  if (evt.target.nodeName !== "IMG") {
+    return;
+  }
+  const imgUrl = evt.target.dataset.source;
 
-// 2 на каждую картинку в галерее добавить слушатель нажатия
+  const instance = basicLightbox.create(
+    `<img src="${imgUrl}" width="800" height="600">`,
+    {
+      onShow: (instance) => {
+        window.addEventListener("keydown", onKeyDown);
 
-// 3 при нажатии открывать модальное окно
+        function onKeyDown(e) {
+          if (e.code === "Escape") {
+            instance.close();
+            window.removeEventListener("keydown", onKeyDown);
+          }
+        }
+      },
+    }
+  );
 
-// openModal(galleryItems[0].original);
-
-// function openModal(url) {
-//   const instance = basicLightbox.create(`
-//     <div class="gallery__link">
-//         <img src=${url} alt=${galleryItems[0].description}/>
-//     </div>
-// `);
-
-//   instance.show();
-// }
+  instance.show();
+}
